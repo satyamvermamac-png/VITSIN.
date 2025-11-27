@@ -1,0 +1,1011 @@
+import React, { useState, useEffect } from 'react';
+import { ShoppingCart, Menu, X, ChevronLeft, ChevronRight, Plus, Minus, Trash2 } from 'lucide-react';
+
+const VitsinEcommerce = () => {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [cart, setCart] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [checkoutForm, setCheckoutForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    pincode: '',
+    paymentMethod: 'cod'
+  });
+
+  // Product Data
+  const products = [
+    // Veterinary Products
+    {
+      id: 1,
+      name: 'VITMIN NUTRA FORTE',
+      category: 'veterinary',
+      price: 450,
+      description: 'Mineral mixture for cows, buffaloes, sheep, goats, and other dairy animals',
+      sizes: ['2 kg', '5 kg', '10 kg'],
+      image: '🐄',
+      benefits: ['Growth', 'Reproductive health', 'Bone formation', 'Better digestion']
+    },
+    {
+      id: 2,
+      name: 'CALVIT+',
+      category: 'veterinary',
+      price: 850,
+      description: 'Chelated supplement for lactating animals that boosts milk production',
+      sizes: ['1 LTR', '5 LTR', '20 LTR'],
+      image: '🥛',
+      benefits: ['Enhanced milk production', 'Stimulates mammary cells', 'Rich in calcium']
+    },
+    {
+      id: 3,
+      name: 'EXAVIT',
+      category: 'veterinary',
+      price: 680,
+      description: 'Ecbolic and uterine tonic for reproductive health',
+      sizes: ['500 ML'],
+      image: '💊',
+      benefits: ['Placenta removal', 'Metritis prevention', 'Regulates estrous cycle']
+    },
+    {
+      id: 4,
+      name: 'VITLIV',
+      category: 'veterinary',
+      price: 590,
+      description: 'Liver tonic for large animals & growing calves',
+      sizes: ['500 ML'],
+      image: '🏥',
+      benefits: ['Liver regeneration', 'Better digestion', 'Boosts immunity']
+    },
+    {
+      id: 5,
+      name: 'VITSIN-CS',
+      category: 'veterinary',
+      price: 1200,
+      description: 'Antibiotic injection with Ceftiofur and Tazobactam',
+      sizes: ['30 ML'],
+      image: '💉',
+      benefits: ['Treats bacterial infections', 'Respiratory treatment', 'Post-operative care']
+    },
+    {
+      id: 6,
+      name: 'VITSIN-NP',
+      category: 'veterinary',
+      price: 950,
+      description: 'Anti-inflammatory and pain relief injection',
+      sizes: ['1.125 GM'],
+      image: '🩹',
+      benefits: ['Reduces fever', 'Relieves pain', 'Decreases inflammation']
+    },
+    {
+      id: 7,
+      name: 'VIT BENZOLE',
+      category: 'veterinary',
+      price: 380,
+      description: 'Albendazole and Ivermectin broad-spectrum antiparasitic',
+      sizes: ['1 BOLUS'],
+      image: '🐛',
+      benefits: ['Controls parasites', 'Treats ticks and lice', 'Treats lungworms']
+    },
+    {
+      id: 8,
+      name: 'POTASSIUM PERMANGANATE',
+      category: 'veterinary',
+      price: 120,
+      description: 'Disinfectant and antiseptic for veterinary use',
+      sizes: ['10 GM'],
+      image: '🧪',
+      benefits: ['Disinfects wounds', 'Hoof care', 'Mastitis treatment']
+    },
+    {
+      id: 9,
+      name: 'H-VIT UDDERMAXX',
+      category: 'veterinary',
+      price: 720,
+      description: 'Liquid feed concentrate for cattle health and udder care',
+      sizes: ['250 ML', '500 ML'],
+      image: '🍼',
+      benefits: ['Promotes growth', 'Udder health', 'Mastitis prevention', 'Improved fertility']
+    },
+    // Human Range Products
+    {
+      id: 10,
+      name: 'FRK Pre-mix',
+      category: 'human',
+      price: 2500,
+      description: 'Pre-mix for Fortified Rice Kernels with Iron, Folic Acid, B12',
+      sizes: ['1 KG', '5 KG'],
+      image: '🌾',
+      benefits: ['Addresses malnutrition', 'Rich in micronutrients', 'No taste change']
+    },
+    {
+      id: 11,
+      name: 'Wheat Flour Pre-mix',
+      category: 'human',
+      price: 2200,
+      description: 'Complete solution for fortified wheat flour manufacturing',
+      sizes: ['1 KG', '5 KG'],
+      image: '🌾',
+      benefits: ['Reduces deficiencies', 'Cognitive development', 'Increases productivity']
+    },
+    {
+      id: 12,
+      name: 'Wheat Germ Flour',
+      category: 'human',
+      price: 450,
+      description: 'Rich in protein, fiber, and healthy fats',
+      sizes: ['500 GM', '1 KG'],
+      image: '🌱',
+      benefits: ['30-40% protein', '10-15% fiber', 'Rich in antioxidants']
+    },
+    {
+      id: 13,
+      name: 'Pure Organic Honey',
+      category: 'human',
+      price: 650,
+      description: '100% raw and unprocessed organic honey',
+      sizes: ['250 GM', '500 GM', '1 KG'],
+      image: '🍯',
+      benefits: ['Natural enzymes', 'Antioxidant properties', 'Energy boosting']
+    }
+  ];
+
+  // Hero Slides
+  const slides = [
+    {
+      title: 'Quality is Our Pride',
+      subtitle: 'One Stop Solution for All Your Veterinary Needs',
+      bg: 'from-emerald-600 to-teal-700'
+    },
+    {
+      title: 'Empowering Healthier Lives',
+      subtitle: 'Through pioneering nutrition research and innovative solutions',
+      bg: 'from-blue-600 to-cyan-700'
+    },
+    {
+      title: 'Complete Veterinary Care',
+      subtitle: 'Premium supplements for dairy and farm animals',
+      bg: 'from-green-600 to-emerald-700'
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const addToCart = (product, size) => {
+    const cartItem = {
+      ...product,
+      selectedSize: size,
+      cartId: `${product.id}-${size}`
+    };
+    
+    const existingItem = cart.find(item => item.cartId === cartItem.cartId);
+    if (existingItem) {
+      setCart(cart.map(item => 
+        item.cartId === cartItem.cartId 
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      setCart([...cart, { ...cartItem, quantity: 1 }]);
+    }
+  };
+
+  const updateQuantity = (cartId, change) => {
+    setCart(cart.map(item => {
+      if (item.cartId === cartId) {
+        const newQuantity = item.quantity + change;
+        return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
+      }
+      return item;
+    }).filter(item => item.quantity > 0));
+  };
+
+  const removeFromCart = (cartId) => {
+    setCart(cart.filter(item => item.cartId !== cartId));
+  };
+
+  const getTotalPrice = () => {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  const handleCheckoutSubmit = (e) => {
+    e.preventDefault();
+    setOrderPlaced(true);
+    setTimeout(() => {
+      setCart([]);
+      setShowCheckout(false);
+      setOrderPlaced(false);
+      setCheckoutForm({
+        fullName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        pincode: '',
+        paymentMethod: 'cod'
+      });
+      setCurrentPage('home');
+    }, 3000);
+  };
+
+  const handleInputChange = (e) => {
+    setCheckoutForm({
+      ...checkoutForm,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const filteredProducts = selectedCategory === 'all' 
+    ? products 
+    : products.filter(p => p.category === selectedCategory);
+
+  // Navigation
+  const Navigation = () => (
+    <nav className="bg-white shadow-lg sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <h1 className="text-2xl font-bold text-emerald-600">VITSIN</h1>
+            <span className="ml-2 text-xs text-gray-500">Quality is Our Pride</span>
+          </div>
+          
+          {/* Desktop Menu */}
+          <div className="hidden md:flex space-x-8">
+            <button onClick={() => setCurrentPage('home')} className="text-gray-700 hover:text-emerald-600">Home</button>
+            <button onClick={() => setCurrentPage('products')} className="text-gray-700 hover:text-emerald-600">Products</button>
+            <button onClick={() => setCurrentPage('about')} className="text-gray-700 hover:text-emerald-600">About Us</button>
+            <button onClick={() => setCurrentPage('contact')} className="text-gray-700 hover:text-emerald-600">Contact</button>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setCurrentPage('cart')}
+              className="relative p-2 text-gray-700 hover:text-emerald-600"
+            >
+              <ShoppingCart size={24} />
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+            
+            {/* Mobile Menu Button */}
+            <button 
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden pb-4">
+            <button onClick={() => { setCurrentPage('home'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-gray-700">Home</button>
+            <button onClick={() => { setCurrentPage('products'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-gray-700">Products</button>
+            <button onClick={() => { setCurrentPage('about'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-gray-700">About Us</button>
+            <button onClick={() => { setCurrentPage('contact'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-gray-700">Contact</button>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+
+  // Home Page with Slider
+  const HomePage = () => (
+    <div>
+      {/* Hero Slider */}
+      <div className="relative h-96 overflow-hidden">
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentSlide ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <div className={`h-full bg-gradient-to-r ${slide.bg} flex items-center justify-center text-white`}>
+              <div className="text-center px-4">
+                <h2 className="text-5xl font-bold mb-4">{slide.title}</h2>
+                <p className="text-xl mb-8">{slide.subtitle}</p>
+                <button 
+                  onClick={() => setCurrentPage('products')}
+                  className="bg-white text-emerald-600 px-8 py-3 rounded-full font-semibold hover:bg-emerald-50 transition"
+                >
+                  Shop Now
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        <button 
+          onClick={() => setCurrentSlide((currentSlide - 1 + slides.length) % slides.length)}
+          className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 p-2 rounded-full"
+        >
+          <ChevronLeft className="text-white" />
+        </button>
+        <button 
+          onClick={() => setCurrentSlide((currentSlide + 1) % slides.length)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 p-2 rounded-full"
+        >
+          <ChevronRight className="text-white" />
+        </button>
+
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-3 h-3 rounded-full ${index === currentSlide ? 'bg-white' : 'bg-white/50'}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Categories Section */}
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">Our Product Categories</h2>
+        <div className="grid md:grid-cols-2 gap-8">
+          <div 
+            onClick={() => { setCurrentPage('products'); setSelectedCategory('veterinary'); }}
+            className="bg-emerald-50 p-8 rounded-lg cursor-pointer hover:shadow-xl transition"
+          >
+            <div className="text-6xl mb-4">🐄</div>
+            <h3 className="text-2xl font-bold mb-2">Veterinary Products</h3>
+            <p className="text-gray-600">Complete solutions for animal health and farm productivity</p>
+          </div>
+          <div 
+            onClick={() => { setCurrentPage('products'); setSelectedCategory('human'); }}
+            className="bg-blue-50 p-8 rounded-lg cursor-pointer hover:shadow-xl transition"
+          >
+            <div className="text-6xl mb-4">🌾</div>
+            <h3 className="text-2xl font-bold mb-2">Human Nutrition</h3>
+            <p className="text-gray-600">Premium fortification products and organic foods</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Featured Products */}
+      <div className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Featured Products</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {products.slice(0, 3).map(product => (
+              <div key={product.id} className="bg-white rounded-lg shadow-lg p-6">
+                <div className="text-5xl mb-4">{product.image}</div>
+                <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+                <p className="text-gray-600 mb-4">{product.description}</p>
+                <p className="text-2xl font-bold text-emerald-600 mb-4">₹{product.price}</p>
+                <button 
+                  onClick={() => setCurrentPage('products')}
+                  className="w-full bg-emerald-600 text-white py-2 rounded-lg hover:bg-emerald-700"
+                >
+                  View Details
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Products Page
+  const ProductsPage = () => (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">Our Products</h1>
+      
+      {/* Category Filter */}
+      <div className="flex space-x-4 mb-8">
+        <button
+          onClick={() => setSelectedCategory('all')}
+          className={`px-6 py-2 rounded-full ${selectedCategory === 'all' ? 'bg-emerald-600 text-white' : 'bg-gray-200'}`}
+        >
+          All Products
+        </button>
+        <button
+          onClick={() => setSelectedCategory('veterinary')}
+          className={`px-6 py-2 rounded-full ${selectedCategory === 'veterinary' ? 'bg-emerald-600 text-white' : 'bg-gray-200'}`}
+        >
+          Veterinary
+        </button>
+        <button
+          onClick={() => setSelectedCategory('human')}
+          className={`px-6 py-2 rounded-full ${selectedCategory === 'human' ? 'bg-emerald-600 text-white' : 'bg-gray-200'}`}
+        >
+          Human Nutrition
+        </button>
+      </div>
+
+      {/* Products Grid */}
+      <div className="grid md:grid-cols-3 gap-6">
+        {filteredProducts.map(product => (
+          <div key={product.id} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+            <div className="text-6xl mb-4">{product.image}</div>
+            <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+            <p className="text-gray-600 text-sm mb-4">{product.description}</p>
+            
+            <div className="mb-4">
+              <p className="text-sm font-semibold mb-2">Benefits:</p>
+              <ul className="text-sm text-gray-600 space-y-1">
+                {product.benefits.slice(0, 2).map((benefit, idx) => (
+                  <li key={idx}>• {benefit}</li>
+                ))}
+              </ul>
+            </div>
+
+            <p className="text-2xl font-bold text-emerald-600 mb-4">₹{product.price}</p>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-semibold">Available sizes:</p>
+              {product.sizes.map((size, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => addToCart(product, size)}
+                  className="w-full bg-emerald-600 text-white py-2 rounded-lg hover:bg-emerald-700 text-sm"
+                >
+                  Add {size} to Cart
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // About Page
+  const AboutPage = () => (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">About Vitsin</h1>
+      
+      <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="bg-emerald-50 p-8 rounded-lg">
+          <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
+          <p className="text-gray-700 leading-relaxed">
+            At Vitsin, we take pride in manufacturing the best veterinary feed supplements that help grow your farm animals and enhance milk yield. Our products are a one-stop solution for all your farm animal needs.
+          </p>
+        </div>
+        
+        <div className="bg-blue-50 p-8 rounded-lg">
+          <h2 className="text-2xl font-bold mb-4">Our Vision</h2>
+          <p className="text-gray-700 leading-relaxed">
+            VITSIN envisions a world where science-driven nutrition empowers individuals to reach their full potential, fostering vibrant health and vitality through innovative solutions.
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <h2 className="text-2xl font-bold mb-4">Singh Forti Services Pvt. Ltd.</h2>
+        <p className="text-gray-700 mb-4">
+          Our team amalgamates expertise from diverse fields to bring a range of products with impeccable quality, precise formulation, and authentic ingredients. Our formulations are customized to suit the needs of our valued customers.
+        </p>
+        <div className="grid md:grid-cols-3 gap-4 mt-6">
+          <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <div className="text-3xl mb-2">💊</div>
+            <h3 className="font-semibold">Formulations</h3>
+          </div>
+          <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <div className="text-3xl mb-2">🌱</div>
+            <h3 className="font-semibold">Nutrition</h3>
+          </div>
+          <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <div className="text-3xl mb-2">🐄</div>
+            <h3 className="font-semibold">Veterinary</h3>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-8 rounded-lg">
+        <h2 className="text-2xl font-bold mb-4">Quality is Our Pride</h2>
+        <p className="leading-relaxed">
+          Whether you have cows, horses, goats, or any other livestock, our feed supplements are formulated to provide the necessary nutrients and vitamins that will promote their growth and overall health.
+        </p>
+      </div>
+    </div>
+  );
+
+  // Cart Page
+  const CartPage = () => (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">Shopping Cart</h1>
+      
+      {cart.length === 0 ? (
+        <div className="text-center py-16">
+          <ShoppingCart size={64} className="mx-auto text-gray-300 mb-4" />
+          <p className="text-xl text-gray-500 mb-4">Your cart is empty</p>
+          <button 
+            onClick={() => setCurrentPage('products')}
+            className="bg-emerald-600 text-white px-8 py-3 rounded-lg hover:bg-emerald-700"
+          >
+            Continue Shopping
+          </button>
+        </div>
+      ) : showCheckout ? (
+        <CheckoutPage />
+      ) : (
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-4">
+            {cart.map(item => (
+              <div key={item.cartId} className="bg-white rounded-lg shadow p-6 flex items-center">
+                <div className="text-4xl mr-4">{item.image}</div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg">{item.name}</h3>
+                  <p className="text-sm text-gray-600">Size: {item.selectedSize}</p>
+                  <p className="text-emerald-600 font-bold">₹{item.price}</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <button 
+                    onClick={() => updateQuantity(item.cartId, -1)}
+                    className="bg-gray-200 p-2 rounded hover:bg-gray-300"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span className="font-bold w-8 text-center">{item.quantity}</span>
+                  <button 
+                    onClick={() => updateQuantity(item.cartId, 1)}
+                    className="bg-gray-200 p-2 rounded hover:bg-gray-300"
+                  >
+                    <Plus size={16} />
+                  </button>
+                  <button 
+                    onClick={() => removeFromCart(item.cartId)}
+                    className="bg-red-100 p-2 rounded hover:bg-red-200 ml-4"
+                  >
+                    <Trash2 size={16} className="text-red-600" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6 h-fit">
+            <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>₹{getTotalPrice()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Shipping</span>
+                <span className="text-emerald-600">Free</span>
+              </div>
+              <div className="border-t pt-2 flex justify-between font-bold text-xl">
+                <span>Total</span>
+                <span className="text-emerald-600">₹{getTotalPrice()}</span>
+              </div>
+            </div>
+            <button 
+              onClick={() => setShowCheckout(true)}
+              className="w-full bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 font-semibold"
+            >
+              Proceed to Checkout
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // Checkout Page
+  const CheckoutPage = () => (
+    <div className="max-w-6xl mx-auto">
+      {orderPlaced ? (
+        <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+          <div className="text-6xl mb-6">✓</div>
+          <h2 className="text-3xl font-bold text-emerald-600 mb-4">Order Placed Successfully!</h2>
+          <p className="text-gray-600 mb-2">Thank you for your order, {checkoutForm.fullName}</p>
+          <p className="text-gray-600 mb-6">Order confirmation has been sent to {checkoutForm.email}</p>
+          <div className="bg-emerald-50 p-4 rounded-lg inline-block">
+            <p className="text-sm text-gray-600">Order Total</p>
+            <p className="text-3xl font-bold text-emerald-600">₹{getTotalPrice()}</p>
+          </div>
+          <p className="text-sm text-gray-500 mt-6">Redirecting to home page...</p>
+        </div>
+      ) : (
+        <form onSubmit={handleCheckoutSubmit}>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Shipping Details */}
+            <div className="md:col-span-2 space-y-6">
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-2xl font-bold mb-6">Shipping Details</h2>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold mb-2">Full Name *</label>
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={checkoutForm.fullName}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Email *</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={checkoutForm.email}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Phone Number *</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={checkoutForm.phone}
+                      onChange={handleInputChange}
+                      required
+                      pattern="[0-9]{10}"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                      placeholder="10-digit mobile number"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold mb-2">Address *</label>
+                    <textarea
+                      name="address"
+                      value={checkoutForm.address}
+                      onChange={handleInputChange}
+                      required
+                      rows="3"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                      placeholder="House/Flat No., Street, Area"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">City *</label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={checkoutForm.city}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                      placeholder="City"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">State *</label>
+                    <input
+                      type="text"
+                      name="state"
+                      value={checkoutForm.state}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                      placeholder="State"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold mb-2">PIN Code *</label>
+                    <input
+                      type="text"
+                      name="pincode"
+                      value={checkoutForm.pincode}
+                      onChange={handleInputChange}
+                      required
+                      pattern="[0-9]{6}"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                      placeholder="6-digit PIN code"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-2xl font-bold mb-6">Payment Method</h2>
+                <div className="space-y-4">
+                  <div className="border-2 border-emerald-500 rounded-lg p-4 bg-emerald-50">
+                    <label className="flex items-start cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        checked={checkoutForm.paymentMethod === 'cod'}
+                        onChange={handleInputChange}
+                        className="mt-1 mr-3"
+                      />
+                      <div>
+                        <p className="font-semibold text-lg">Cash on Delivery (COD)</p>
+                        <p className="text-sm text-gray-600">Pay when you receive your order</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="border-2 border-gray-300 rounded-lg p-4">
+                    <label className="flex items-start cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="upi"
+                        checked={checkoutForm.paymentMethod === 'upi'}
+                        onChange={handleInputChange}
+                        className="mt-1 mr-3"
+                      />
+                      <div>
+                        <p className="font-semibold text-lg">UPI Payment</p>
+                        <p className="text-sm text-gray-600">Pay using Google Pay, PhonePe, Paytm, etc.</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="border-2 border-gray-300 rounded-lg p-4">
+                    <label className="flex items-start cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="card"
+                        checked={checkoutForm.paymentMethod === 'card'}
+                        onChange={handleInputChange}
+                        className="mt-1 mr-3"
+                      />
+                      <div>
+                        <p className="font-semibold text-lg">Credit/Debit Card</p>
+                        <p className="text-sm text-gray-600">Pay securely with your card</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="border-2 border-gray-300 rounded-lg p-4">
+                    <label className="flex items-start cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="netbanking"
+                        checked={checkoutForm.paymentMethod === 'netbanking'}
+                        onChange={handleInputChange}
+                        className="mt-1 mr-3"
+                      />
+                      <div>
+                        <p className="font-semibold text-lg">Net Banking</p>
+                        <p className="text-sm text-gray-600">Pay directly from your bank account</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="border-2 border-gray-300 rounded-lg p-4">
+                    <label className="flex items-start cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="wallet"
+                        checked={checkoutForm.paymentMethod === 'wallet'}
+                        onChange={handleInputChange}
+                        className="mt-1 mr-3"
+                      />
+                      <div>
+                        <p className="font-semibold text-lg">Mobile Wallets</p>
+                        <p className="text-sm text-gray-600">Paytm, Amazon Pay, Mobikwik, etc.</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {checkoutForm.paymentMethod === 'upi' && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                    <label className="block text-sm font-semibold mb-2">UPI ID</label>
+                    <input
+                      type="text"
+                      placeholder="yourname@upi"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                )}
+
+                {checkoutForm.paymentMethod === 'card' && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-lg space-y-3">
+                    <div>
+                      <label className="block text-sm font-semibold mb-2">Card Number</label>
+                      <input
+                        type="text"
+                        placeholder="1234 5678 9012 3456"
+                        maxLength="19"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-semibold mb-2">Expiry Date</label>
+                        <input
+                          type="text"
+                          placeholder="MM/YY"
+                          maxLength="5"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold mb-2">CVV</label>
+                        <input
+                          type="password"
+                          placeholder="123"
+                          maxLength="3"
+                          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-2">Cardholder Name</label>
+                      <input
+                        type="text"
+                        placeholder="Name on card"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {checkoutForm.paymentMethod === 'netbanking' && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                    <label className="block text-sm font-semibold mb-2">Select Bank</label>
+                    <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500">
+                      <option value="">Choose your bank</option>
+                      <option value="sbi">State Bank of India</option>
+                      <option value="hdfc">HDFC Bank</option>
+                      <option value="icici">ICICI Bank</option>
+                      <option value="axis">Axis Bank</option>
+                      <option value="pnb">Punjab National Bank</option>
+                      <option value="kotak">Kotak Mahindra Bank</option>
+                      <option value="other">Other Banks</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow p-6 sticky top-20">
+                <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
+                <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
+                  {cart.map(item => (
+                    <div key={item.cartId} className="flex items-center space-x-3 pb-3 border-b">
+                      <div className="text-2xl">{item.image}</div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm">{item.name}</p>
+                        <p className="text-xs text-gray-600">{item.selectedSize} × {item.quantity}</p>
+                      </div>
+                      <p className="font-bold">₹{item.price * item.quantity}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-2 mb-4 pt-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal</span>
+                    <span>₹{getTotalPrice()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Shipping</span>
+                    <span className="text-emerald-600">Free</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Tax (GST 18%)</span>
+                    <span>₹{Math.round(getTotalPrice() * 0.18)}</span>
+                  </div>
+                  <div className="border-t pt-2 flex justify-between font-bold text-xl">
+                    <span>Total</span>
+                    <span className="text-emerald-600">₹{getTotalPrice() + Math.round(getTotalPrice() * 0.18)}</span>
+                  </div>
+                </div>
+                <button 
+                  type="submit"
+                  className="w-full bg-emerald-600 text-white py-3 rounded-lg hover:bg-emerald-700 font-semibold mb-2"
+                >
+                  Place Order
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setShowCheckout(false)}
+                  className="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
+                >
+                  Back to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+
+  // Contact Page
+  const ContactPage = () => (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">Contact Us</h1>
+      
+      <div className="grid md:grid-cols-2 gap-8">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold mb-4">Get in Touch</h2>
+          <div className="space-y-4">
+            <div>
+              <p className="font-semibold">Email</p>
+              <p className="text-emerald-600">singhforti@gmail.com</p>
+            </div>
+            <div>
+              <p className="font-semibold">Phone</p>
+              <p className="text-emerald-600">+91 94640-33512</p>
+              <p className="text-emerald-600">+91 98154-71133</p>
+            </div>
+            <div>
+              <p className="font-semibold">Website</p>
+              <p className="text-emerald-600">www.vitsin.in</p>
+            </div>
+            <div>
+              <p className="font-semibold">Address</p>
+              <p className="text-gray-700">
+                Hoshiarpur-Tanda Road<br />
+                Village Pandori Khazoor<br />
+                Hoshiarpur, Punjab - 146113
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold mb-4">Why Choose Vitsin?</h2>
+          <ul className="space-y-3">
+            <li className="flex items-start">
+              <span className="mr-2">✓</span>
+              <span>Premium quality products with authentic ingredients</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2">✓</span>
+              <span>Customized formulations for your needs</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2">✓</span>
+              <span>Expert team from diverse fields</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2">✓</span>
+              <span>One-stop solution for veterinary and human nutrition</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      {currentPage === 'home' && <HomePage />}
+      {currentPage === 'products' && <ProductsPage />}
+      {currentPage === 'about' && <AboutPage />}
+      {currentPage === 'cart' && <CartPage />}
+      {currentPage === 'contact' && <ContactPage />}
+      
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-8 mt-16">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-xl font-bold mb-2">VITSIN</p>
+          <p className="text-sm text-gray-400">Quality is Our Pride</p>
+          <p className="text-sm text-gray-400 mt-4">© 2024 Singh Forti Services Pvt. Ltd. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default VitsinEcommerce;
